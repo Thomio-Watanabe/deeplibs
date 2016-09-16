@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from detection_modules import load_images
 from detection_modules import load_labels
 from detection_modules import bouding_box
