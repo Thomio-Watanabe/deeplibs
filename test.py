@@ -13,7 +13,7 @@ ncols = 1242
 
 training_dir = '../datasets/kitti_small/image_2'
 names, images = load_images.load( training_dir, nrows, ncols )
-# Transform tuple to array
+# Transform list to array
 images = np.array( images )
 
 labels_dir = '../datasets/kitti_small/label_2'

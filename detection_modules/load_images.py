@@ -15,7 +15,9 @@ def norm_image( array_2D ):
 
 # Kitti ( nrows = 375 x ncols = 1242 )
 # Synthia ( nrows = 720 x ncols = 960 )
-def analyse_img( img ):
+def analyse_imgs( images ):
+    print '-- Total number of images loaded: ', len( images )
+    img = images[0]
     # print '-- Images dimensions:', img.ndim    # 3 dimensions RGB -> MxNx3
     print '-- Image array format:', img.shape
     print '-- Number of rows:', len(img)
@@ -54,10 +56,11 @@ def load( training_dir, nrows, ncols, grey_scale = True ):
             norm_image_array = norm_image( image_array )
             names.append( image_name )
             images.append( norm_image_array )
+    analyse_imgs( images )
     return names, images
 
 
-def load_and_analyse( training_dir ):
+def load_and_analyse( training_dir, grey_scale = True ):
     '''Analyse the images from training_dir and load the images with the same nrows and ncols.
 
     In some datasets the images doesn't have equal number of rows and columns.
@@ -101,6 +104,12 @@ def load_and_analyse( training_dir ):
 
     print '-- Number of rows more frequent:', nrows
     print '-- Number of cols more frequent:', ncols
-    print '-- Total number of images loaded: ', len( images )
-    analyse_img( images[0] )
+
+    for i in range( len(images) ):
+        if( grey_scale ):
+            images[i] = rgb2grey( images[i] )
+        images[i] = norm_image( images[i] )
+
+    analyse_imgs( images )
+
     return names, images
