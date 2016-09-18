@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from detection_modules import load_images
-from detection_modules import load_labels
-from detection_modules import bouding_box
-from detection_modules import make_grid
+from image_modules import load_images
+from image_modules import load_labels
+from image_modules import bouding_box
+from image_modules import make_grid
 from tf_modules import udacity
 import numpy as np
 
