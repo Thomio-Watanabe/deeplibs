@@ -1,7 +1,7 @@
 import numpy as np
 
 # divide the image in grid = [25 x 27]
-def generate( bb, grid ):
+def generate( bb, grid = [25,27] ):
     n_bb = bb.shape[0]
     horizontal_size = bb.shape[1] / grid[0]
     vertical_size = bb.shape[2] / grid[1]

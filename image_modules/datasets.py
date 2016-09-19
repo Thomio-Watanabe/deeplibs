@@ -1,7 +1,7 @@
 from image_modules import load_images
 from image_modules import load_ground_truth
 from image_modules import make_grid
-from tf_modules import udacity
+# from tf_modules import udacity
 
 
 # All datasets inherits from DatasetBase
@@ -22,8 +22,10 @@ class SynthiaDataset( DatasetBase ):
         self.nrows = nrows
         self.ncols = ncols
 
-    # Synthia dataset doesn't have a bb, each pixel is defined within a class.
-    # Thus, we don't need to load label files, we load the ground truth (GT).
+    # Synthia dataset doesn't have a bb, each pixel has a class.
+    # Thus, we don't need to load label files, we load the ground truth straight from the txt file.
+    def load_gt(self, gt_dir, object_name):
+        self.ground_truth = load_ground_truth.load_synthia_gt(gt_dir, object_name, self.nrows, self.ncols)
 
 
 
