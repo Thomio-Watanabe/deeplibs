@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-from image_modules import datasets
+from image_modules import kitti_dataset
 
 
-kitti_dataset = datasets.KittiDataset()
+dataset = kitti_dataset.KittiDataset()
+
 training_dir = '../datasets/kitti_small/test/'
-kitti_dataset.load_images( training_dir )
+dataset.load_images( training_dir )
 
 gt_dir = '../datasets/kitti_small/test_label'
-kitti_gt = kitti_dataset.load_gt( gt_dir, 'Car' )
+gt = dataset.load_gt( gt_dir, 'Car' )
