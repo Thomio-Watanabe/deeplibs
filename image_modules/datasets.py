@@ -25,7 +25,7 @@ class SynthiaDataset( DatasetBase ):
     # Synthia dataset doesn't have a bb, each pixel has a class.
     # Thus, we don't need to load label files, we load the ground truth straight from the txt file.
     def load_gt(self, gt_dir, object_name):
-        load_ground_truth.load_synthia_gt(gt_dir, object_name, self.nrows, self.ncols)
+        self.ground_truth = load_ground_truth.load_synthia_gt(gt_dir, object_name, self.nrows, self.ncols)
 
 
 

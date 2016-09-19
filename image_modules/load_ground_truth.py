@@ -10,10 +10,9 @@ def load_kitti_labels( labels_dir, object_name ):
     row_last = 7
     label_files = os.listdir( labels_dir )
     label_dataset = []
-    print 'Loading ' + object_name + ' ground truth... '
+    print '-- Loading ' + object_name + ' ground truth... '
     for label_index, label_name in enumerate( label_files ):
         label_file = os.path.join( labels_dir, label_name)
-        # print 'Loading label file:', label_file # -> todo save this info to file
         with open( label_file ) as fileHandle:
             file_content = fileHandle.readlines()
             # file_content is a list of strings and may have several lines
