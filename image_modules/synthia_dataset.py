@@ -41,10 +41,10 @@ class SynthiaDataset( dataset_base.DatasetBase ):
                 array = [[int(x) for x in line.split()] for line in fileHandle]
                 ground_truth_list.append( array )
 
-                self.ground_truth_array = np.array( ground_truth_list )
+                self.ground_truth = np.array( ground_truth_list )
                 # Pixels that don't belong to the object receive 0
                 for i in range( len(ground_truth_list) ):
-                    non_object_index = np.where( self.ground_truth_array[i] != object_ID )
-                    self.ground_truth_array[i][non_object_index] = 0
-
+                    non_object_index = np.where( self.ground_truth[i] != object_ID )
+                    self.ground_truth[i][non_object_index] = 0
+        return 0
 

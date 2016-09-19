@@ -10,7 +10,8 @@ class KittiDataset( dataset_base.DatasetBase ):
 
     def load_gt(self, labels_dir, object_name ):
         self.labels = load_kitti_labels( labels_dir, object_name )
-        self.bb = get_bb_pixels( self.names, self.labels, self.nrows, self.ncols )
+        self.ground_truth = get_bb_pixels( self.names, self.labels, self.nrows, self.ncols )
+
 
 def load_kitti_labels( labels_dir, object_name ):
     # Positions of the bouding box pixels inside each label file
@@ -36,7 +37,7 @@ def load_kitti_labels( labels_dir, object_name ):
     return label_dataset
 
 # Return bouding box pixels
-def get_bb_pixels( names, labels, nrows, ncols):
+def get_bb_pixels( names, labels, nrows, ncols ):
     bb = []
     for i in range( len(names) ):
         zeros = np.zeros( [nrows,ncols] )
@@ -46,6 +47,7 @@ def get_bb_pixels( names, labels, nrows, ncols):
                 x = [ int( float(k) ) for k in x ]
                 zeros[ x[0]:x[1], x[2]:x[3] ] = 1
         bb.append(zeros)
+    bb = np.array(bb)
     return bb;
 
     
