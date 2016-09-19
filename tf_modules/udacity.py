@@ -37,7 +37,7 @@ def model(images_info, data_size, input_data):
     layer2_weights = tf.Variable(tf.truncated_normal([patch_size_row, patch_size_col, depth, depth], stddev=0.1))
     layer2_biases = tf.Variable(tf.constant(1.0, shape=[depth]))
     
-    layer3_weights = tf.Variable(tf.truncated_normal( [ 29952, num_hidden], stddev=0.1))
+    layer3_weights = tf.Variable(tf.truncated_normal( [ 43200, num_hidden], stddev=0.1))
     layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
 
     layer4_weights = tf.Variable(tf.truncated_normal([num_hidden, output_size], stddev=0.1))

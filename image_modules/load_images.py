@@ -57,6 +57,7 @@ def load( training_dir, nrows, ncols, grey_scale = True ):
             names.append( image_name )
             images.append( norm_image_array )
     analyse_imgs( images )
+    images = np.array(images)
     return names, images
 
 
@@ -111,5 +112,5 @@ def load_and_analyse( training_dir, grey_scale = True ):
         images[i] = norm_image( images[i] )
 
     analyse_imgs( images )
-
+    images = np.array(images)
     return names, images, nrows, ncols

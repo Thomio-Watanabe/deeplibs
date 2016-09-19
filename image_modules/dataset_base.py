@@ -19,8 +19,8 @@ class DatasetBase:
         n_bb = self.ground_truth.shape[0]
         horizontal_size = self.ground_truth.shape[1] / grid[0]
         vertical_size = self.ground_truth.shape[2] / grid[1]
-        reduced_bb = np.ndarray( (n_bb , horizontal_size, vertical_size), float)
-        reduced_bb.fill(0)
+        self.reduced_ground_truth = np.ndarray( (n_bb , horizontal_size, vertical_size), float)
+        self.reduced_ground_truth.fill(0)
         for k in range( n_bb ):
             for i in range ( horizontal_size ):
                 row = i * grid[0]
@@ -31,5 +31,37 @@ class DatasetBase:
                     percentage = np.divide( n_ones, grid[0] * grid[1] ,dtype = float )
                     # if more the 90% f the box have ones => the area will keep the value
                     if ( percentage >= 0.9 ):
-                        reduced_bb[k, i, j] = 1
+                        self.reduced_ground_truth[k, i, j] = 1
         return 0
+
+    def format_dataset( self ):
+        # Transform each 2D image in an unidimentional array
+        nimages = len( self.images )
+        num_channels = 1
+        self.images = self.images.reshape( (-1, self.nrows, self.ncols, num_channels)).astype(np.float32)
+
+        gt_nrows = self.reduced_ground_truth.shape[1]
+        gt_ncols = self.reduced_ground_truth.shape[2]
+        output_size = gt_nrows * gt_ncols
+        self.reduced_ground_truth = self.reduced_ground_truth.reshape( (-1, gt_nrows * gt_ncols)).astype(np.float32)
+
+        # Separate dataset in training, validation and test
+        # training = 60%
+        # validation and test = 20%
+        nimages_training = int( 0.6 * nimages )
+        nimages_validation = int( 0.2 * nimages )
+        nimages_test = int( 0.2 * nimages )
+
+        images_training = self.images[0:nimages_training, :]
+        # images_validation
+        # images_test
+
+        ground_truth_training = self.reduced_ground_truth[0:nimages_training, :]
+        # bb_validation
+        # bb_test
+
+        images_info = self.nrows, self.ncols, num_channels, output_size
+        data_size = nimages_training, nimages_validation, nimages_test
+        input_data = images_training, ground_truth_training
+
+        return images_info, data_size, input_data
