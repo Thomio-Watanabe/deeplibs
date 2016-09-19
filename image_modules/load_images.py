@@ -16,12 +16,12 @@ def norm_image( array_2D ):
 # Kitti ( nrows = 375 x ncols = 1242 )
 # Synthia ( nrows = 720 x ncols = 960 )
 def analyse_imgs( images ):
-    print '-- Total number of images loaded: ', len( images )
     img = images[0]
-    # print '-- Images dimensions:', img.ndim    # 3 dimensions RGB -> MxNx3
     print '-- Image array format:', img.shape
-    print '-- Number of rows:', len(img)
-    print '-- Number of cols:', len(img[0])
+    print '-- Total number of images loaded: ', len( images )
+    # print '-- Images dimensions:', img.ndim    # 3 dimensions RGB -> MxNx3
+    # print '-- Number of rows:', len(img)
+    # print '-- Number of cols:', len(img[0])
     print '-- Intensity max value:', np.amax(img)
     print '-- Intensity min value:', np.amin(img)
 
@@ -112,4 +112,4 @@ def load_and_analyse( training_dir, grey_scale = True ):
 
     analyse_imgs( images )
 
-    return names, images
+    return names, images, nrows, ncols
