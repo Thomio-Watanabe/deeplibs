@@ -2,6 +2,7 @@ from image_modules import dataset_base
 import numpy as np
 import os
 
+
 class SynthiaDataset( dataset_base.DatasetBase ):
     def __init__(self, nrows = 720, ncols = 960):
         self.nrows = nrows
