@@ -15,7 +15,7 @@ class DatasetBase:
 
     # divide the image in grid blocs
     def create_gt_grid( self, grid = [25,27] ):
-        print '-- Creating grid for the ground truth...'
+        print( '-- Creating grid for the ground truth...' )
         n_bb = self.ground_truth.shape[0]
         horizontal_size = self.ground_truth.shape[1] / grid[0]
         vertical_size = self.ground_truth.shape[2] / grid[1]

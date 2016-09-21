@@ -26,12 +26,12 @@ class SynthiaDataset( dataset_base.DatasetBase ):
 
         # print error if key doesn't exit:
         if( not object_class.has_key(object_name) ):
-            print '-- Object name ', object_name,' not found in Synthia dataset.'
-            print '-- Possible options are: ', object_class.keys()
+            print( '-- Object name ', object_name,' not found in Synthia dataset.' )
+            print( '-- Possible options are: ', object_class.keys() )
             raise SystemExit
 
         object_ID = object_class[object_name]
-        print '-- Loading ' + object_name + ' ground truth... '
+        print( '-- Loading ' + object_name + ' ground truth... ' )
 
         gt_files = os.listdir( gt_dir )
         ground_truth_list = []

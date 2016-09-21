@@ -71,13 +71,13 @@ def model(images_info, data_size, input_data):
 
     with tf.Session() as sess:
         sess.run(init)
-        print 'Training CNN...'
+        print( 'Training CNN...' )
         for i in range( iterations ):
             offset = (i * batch_size) % (nimages_training - batch_size)
             batch_data = images_training[ offset:(offset + batch_size), :]
             batch_bb = bb_training[ offset:(offset + batch_size), :]
             _, l = sess.run( [optimizer, loss], feed_dict={tf_training_images: batch_data, tf_training_bb: batch_bb} )
-            print 'Minibatch loss at step', i,'=', l
+            print( 'Minibatch loss at step', i,'=', l )
     #        if( i % batch_size == 0):
-    #            print 'Minibatch loss at step', i,'=', l
+    #            print( 'Minibatch loss at step', i,'=', l )
 

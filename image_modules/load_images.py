@@ -17,13 +17,13 @@ def norm_image( array_2D ):
 # Synthia ( nrows = 720 x ncols = 960 )
 def analyse_imgs( images ):
     img = images[0]
-    print '-- Image array format:', img.shape
-    print '-- Total number of images loaded: ', len( images )
-    # print '-- Images dimensions:', img.ndim    # 3 dimensions RGB -> MxNx3
-    # print '-- Number of rows:', len(img)
-    # print '-- Number of cols:', len(img[0])
-    print '-- Intensity max value:', np.amax(img)
-    print '-- Intensity min value:', np.amin(img)
+    print( '-- Image array format:', img.shape )
+    print( '-- Total number of images loaded: ', len( images ) )
+    # print( '-- Images dimensions:', img.ndim    # 3 dimensions RGB -> MxNx3 )
+    # print( '-- Number of rows:', len(img) )
+    # print( '-- Number of cols:', len(img[0]) )
+    print( '-- Intensity max value:', np.amax(img) )
+    print( '-- Intensity min value:', np.amin(img) )
 
 
 '''
@@ -46,7 +46,7 @@ def load( training_dir, nrows, ncols, grey_scale = True ):
     # Index array has all the images with the parsed nrows and ncols
     names = []
     images = []
-    print '-- Loading (', nrows, 'x', ncols, ') images...'
+    print( '-- Loading (', nrows, 'x', ncols, ') images...' )
     for image_index, image_name in enumerate( image_files ):
         image_file = os.path.join( training_dir, image_name )
         image_array = ndimage.imread( image_file ).astype(float)
@@ -76,7 +76,7 @@ def load_and_analyse( training_dir, grey_scale = True ):
     rows = []
     cols = []
     image_files = os.listdir( training_dir )
-    print '-- Loading all images...'
+    print( '-- Loading all images...' )
     for image_index, image_name in enumerate( image_files ):
         names.append( image_name )
         image_file = os.path.join( training_dir, image_name )
@@ -87,14 +87,14 @@ def load_and_analyse( training_dir, grey_scale = True ):
 
     unique, counts = np.unique( rows, return_counts = True )
     index = np.argmax(counts)
-    print '-- Frequency of the number of rows: '
-    print np.asarray((unique, counts)).T
+    print( '-- Frequency of the number of rows: ' )
+    print( np.asarray((unique, counts)).T )
     nrows = unique[index]
 
     unique, counts = np.unique( cols, return_counts = True )
     index = np.argmax(counts)
-    print '-- Frequency of the number of cols: '
-    print np.asarray((unique, counts)).T
+    print( '-- Frequency of the number of cols: ' )
+    print( np.asarray((unique, counts)).T )
     ncols = unique[index]
 
     # Remove images with different number of nrows x ncols
@@ -103,8 +103,8 @@ def load_and_analyse( training_dir, grey_scale = True ):
             images.pop(i)
             names.pop(i)
 
-    print '-- Number of rows more frequent:', nrows
-    print '-- Number of cols more frequent:', ncols
+    print( '-- Number of rows more frequent:', nrows )
+    print( '-- Number of cols more frequent:', ncols )
 
     for i in range( len(images) ):
         if( grey_scale ):
