@@ -4,8 +4,8 @@ import abc
 import os
 
 
-# All datasets inherits from DatasetBase
-class DatasetBase:
+# All datasets inherits from ImagesDataset
+class ImagesDataset:
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):

@@ -1,9 +1,9 @@
-from image_modules import dataset_base
+from image_modules import images_dataset
 import numpy as np
 import os
 
 
-class SynthiaDataset( dataset_base.DatasetBase ):
+class SynthiaDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 720, ncols = 960):
         self.nrows = nrows
         self.ncols = ncols

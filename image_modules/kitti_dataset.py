@@ -1,9 +1,9 @@
-from image_modules import dataset_base
+from image_modules import images_dataset
 import numpy as np
 import os
 
 
-class KittiDataset( dataset_base.DatasetBase ):
+class KittiDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 375, ncols = 1242):
         self.nrows = nrows
         self.ncols = ncols
