@@ -1,9 +1,9 @@
-from image_modules import dataset_base
+from image_modules import images_dataset
 import numpy as np
 import os
 
 
-class KittiDataset( dataset_base.DatasetBase ):
+class KittiDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 375, ncols = 1242):
         self.nrows = nrows
         self.ncols = ncols
@@ -21,7 +21,7 @@ def load_kitti_labels( labels_dir, object_name ):
     row_last = 7
     label_files = os.listdir( labels_dir )
     label_dataset = []
-    print '-- Loading ' + object_name + ' ground truth... '
+    print( '-- Loading ' + object_name + ' ground truth... ' )
     for label_index, label_name in enumerate( label_files ):
         label_file = os.path.join( labels_dir, label_name)
         with open( label_file ) as fileHandle:
