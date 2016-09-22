@@ -1,10 +1,13 @@
 #!/usr/bin/env python
-from image_modules import datasets
+from image_modules import kitti_dataset
+# from tf_modules import udacity
 
 
-kitti_dataset = datasets.KittiDataset()
+dataset = kitti_dataset.KittiDataset()
+
 training_dir = '../datasets/kitti_small/test/'
-kitti_dataset.load_images( training_dir )
+dataset.load_images( training_dir )
 
 gt_dir = '../datasets/kitti_small/test_label'
-kitti_gt = kitti_dataset.load_gt( gt_dir, 'Car' )
+dataset.load_gt( gt_dir, object_name = 'Car' )
+dataset.create_gt_grid( [25,27] )
