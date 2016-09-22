@@ -146,8 +146,8 @@ def load_and_analyse( training_dir, grey_scale = True ):
 def reduce_gt(grid, ground_truth):
     print( '-- Creating grid for the ground truth...' )
     n_bb = ground_truth.shape[0]
-    horizontal_size = ground_truth.shape[1] / grid[0]
-    vertical_size = ground_truth.shape[2] / grid[1]
+    horizontal_size = int(ground_truth.shape[1] / grid[0])
+    vertical_size = int(ground_truth.shape[2] / grid[1])
     reduced_ground_truth = np.ndarray( (n_bb , horizontal_size, vertical_size), float)
     reduced_ground_truth.fill(0)
     for k in range( n_bb ):
