@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from image_modules import mnist_dataset
-from tf_modules import udacity
+from tf_modules import LeNet
 
 
 dataset = mnist_dataset.MnistDataset()
@@ -11,5 +11,8 @@ dataset.load_images( images_dir )
 labels_dir = '../datasets/mnist'
 dataset.load_labels( labels_dir )
 
-# images_info, data_size, input_data = dataset.format_dataset( model_type = 'classification')
+dataset.format_dataset()
 
+LeNet.model( dataset )
+# AlexNet.model( dataset )
+# Inception.model( dataset )

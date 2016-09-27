@@ -1,13 +1,11 @@
+from __future__ import print_function
 from scipy import ndimage
 import numpy as np
-import abc
 import os
 
 
 # All datasets inherits from ImagesDataset
 class ImagesDataset:
-    __metaclass__ = abc.ABCMeta
-
     def __init__(self):
         pass
 
@@ -17,22 +15,17 @@ class ImagesDataset:
         else:
             self.names, self.images = load( training_dir, self.nrows, self.ncols )
 
-    @abc.abstractmethod
-    def load_gt(self):
-        pass
-
     # divide the image in grid blocs
     def create_gt_grid( self, grid = [25,27] ):
         self.ground_truth = reduce_gt(grid, self.ground_truth)
 
-    def format_dataset( self, model_type ):
-        # classification models have labels instead of ground_truth
-        model_classes = ['classification', 'segmentation', 'detection']
-        if model_type not in model_classes:
-            print( '-- Model type ', model_type,' not found.' )
-            print( '-- Possible options are: ', model_classes )
-            raise SystemExit
-
+    def format_dataset( self ):
+        # # classification models have labels instead of ground_truth
+        # model_classes = ['classification', 'segmentation', 'detection']
+        # if model_type not in model_classes:
+        #     print( '-- Model type ', model_type,' not found.' )
+        #     print( '-- Possible options are: ', model_classes )
+        #     raise SystemExit
         return format_dataset( self.images, self.nrows, self.ncols, self.ground_truth )
 
 
@@ -41,17 +34,23 @@ def rgb2grey(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
 
-def normalize_image( array_2D ):
-    pixel_depth = 255.0
+def normalize_image( array_2D, pixel_depth = 255.0 ):
     return ( array_2D - (pixel_depth) / 2 ) / pixel_depth
+
+
+def normalize_images( images_array, pixel_depth = 255.0):
+    num_images, nrows, ncols, _ = images_array.shape
+    for i in range( num_images ):
+        images_array[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
+    return images_array
 
 
 def analyse_images( images ):
     img = images[0]
-    print( '-- Image array format:', img.shape )
-    print( '-- Total number of images loaded: ', len( images ) )
-    print( '-- Intensity max value:', np.amax(img) )
-    print( '-- Intensity min value:', np.amin(img) )
+    print( 'Image array format:', img.shape )
+    print( 'Total number of images loaded: ', len( images ) )
+    print( 'Intensity max value:', np.amax(img) )
+    print( 'Intensity min value:', np.amin(img) )
 
 
 '''
@@ -177,8 +176,6 @@ def format_dataset( images, nrows, ncols, ground_truth ):
     ground_truth = ground_truth.reshape( (-1, gt_nrows * gt_ncols)).astype(np.float32)
 
     # Separate dataset in training, validation and test
-    # training = 60%
-    # validation and test = 20%
     nimages_training = int( 0.6 * nimages )
     nimages_validation = int( 0.2 * nimages )
     nimages_test = int( 0.2 * nimages )
