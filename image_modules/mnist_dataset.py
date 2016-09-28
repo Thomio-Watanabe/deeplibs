@@ -41,6 +41,7 @@ class MnistDataset():
         self.test_labels = load_labels_file( path_to_test )
 
     def format_dataset( self,
+                        normalize = True,
                         validation_size = 5000,
                         batch_size = 64,
                         num_epochs = 10,
@@ -48,8 +49,9 @@ class MnistDataset():
                         eval_frequency = 100):
         self.train_images = self.train_images.reshape( self.train_size, self.image_size, self.image_size, self.num_channels).astype(np.float32)
         self.test_images = self.test_images.reshape( self.test_size, self.image_size, self.image_size, self.num_channels).astype(np.float32)
-        self.train_images = images_dataset.normalize_images( self.train_images )
-        self.test_images = images_dataset.normalize_images( self.test_images )
+        if normalize:
+            self.train_images = images_dataset.normalize_images( self.train_images )
+            self.test_images = images_dataset.normalize_images( self.test_images )
 
         self.validation_data = self.train_images[:validation_size, ...]
         self.validation_labels = self.train_labels[:validation_size]
