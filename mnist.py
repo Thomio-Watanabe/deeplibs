@@ -15,4 +15,4 @@ dataset.format_dataset()
 
 LeNet.model( dataset )
 # AlexNet.model( dataset )
-# Inception.model( dataset )
+# GoogleNet.model( dataset )
