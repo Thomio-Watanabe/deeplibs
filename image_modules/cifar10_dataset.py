@@ -25,7 +25,8 @@ class Cifar10Dataset():
                      file_name_02 = 'data_batch_2',
                      file_name_03 = 'data_batch_3',
                      file_name_04 = 'data_batch_4',
-                     file_name_05 = 'data_batch_5'):
+                     file_name_05 = 'data_batch_5',
+                     file_name_06 = 'test_batch' ):
         '''load_images
 
         Each unpickled batch file is a dictionary containing: dict_keys(['filenames', 'batch_label', 'labels', 'data'])
@@ -41,18 +42,21 @@ class Cifar10Dataset():
         batch_file_03 = os.path.join( images_dir, file_name_03 )
         batch_file_04 = os.path.join( images_dir, file_name_04 )
         batch_file_05 = os.path.join( images_dir, file_name_05 )
+        test_file = os.path.join( images_dir, file_name_06 )
 
         batch_01 = unpickle( batch_file_01 )
         batch_02 = unpickle( batch_file_02 )
         batch_03 = unpickle( batch_file_03 )
         batch_04 = unpickle( batch_file_04 )
         batch_05 = unpickle( batch_file_05 )
+        test_batch = unpickle( test_file )
 
         self.images_01, self.labels_01 = extract_data( batch_01 )
         self.images_02, self.labels_02 = extract_data( batch_02 )
         self.images_03, self.labels_03 = extract_data( batch_03 )
         self.images_04, self.labels_04 = extract_data( batch_04 )
         self.images_05, self.labels_05 = extract_data( batch_05 )
+        self.images_06, self.labels_06 = extract_data( test_batch )
 
     def load_labels( self ):
         print('-- Labels were loaded with images.')
@@ -69,15 +73,17 @@ class Cifar10Dataset():
         self.train_images = np.concatenate( (self.images_01,
                                              self.images_02,
                                              self.images_03,
-                                             self.images_04),
+                                             self.images_04,
+                                             self.images_05),
                                              axis = 0 )
-        self.test_images = self.images_05
+        self.test_images = self.images_06
         self.train_labels = np.concatenate( (self.labels_01,
                                              self.labels_02,
                                              self.labels_03,
-                                             self.labels_04),
+                                             self.labels_04,
+                                             self.labels_05),
                                              axis = 0 )
-        self.test_labels = self.labels_05
+        self.test_labels = self.labels_06
 
 
         if grey_scale:
