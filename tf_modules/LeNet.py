@@ -1,6 +1,7 @@
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
+import math
 import time
 import sys
 
@@ -95,8 +96,17 @@ def model( dataset ):
       seed=SEED, dtype=tf.float32))
   conv2_biases = tf.Variable(tf.constant(0.1, shape=[64], dtype=tf.float32))
 
+  # First conv + max_pool
+  row1 = math.ceil(NUM_ROWS / 2.)
+  col1 = math.ceil(NUM_COLS / 2.)
+  # Second conv + max_pool
+  row2 = math.ceil(row1 / 2.)
+  col2 = math.ceil(col1 / 2.)
+  # Layer 2 output feature map size
+  feature_map_size = int(row2 * col2) * 64
+
   fc1_weights = tf.Variable(  # fully connected, depth 512.
-      tf.truncated_normal([IMAGE_SIZE // 4 * IMAGE_SIZE // 4 * 64, 512],
+      tf.truncated_normal([ feature_map_size, 512],
                           stddev=0.1,
                           seed=SEED,
                           dtype=tf.float32))

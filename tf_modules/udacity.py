@@ -1,5 +1,6 @@
 # CNN Model created from udacity deep learning course
 import tensorflow as tf
+import math
 
 
 def model(images_info, data_size, input_data):
@@ -20,9 +21,9 @@ def model(images_info, data_size, input_data):
     # convolution stuff
     patch_size_row = 25
     patch_size_col = 27
-    depth = 16 # 128
+    depth = 32
     image_size = npixels
-    num_hidden = 32 # 256
+    num_neurons = 64
     
     
     tf_training_images = tf.placeholder( tf.float32, shape = (batch_size, nrows, ncols, num_channels) )
@@ -37,24 +38,34 @@ def model(images_info, data_size, input_data):
     layer2_weights = tf.Variable(tf.truncated_normal([patch_size_row, patch_size_col, depth, depth], stddev=0.1))
     layer2_biases = tf.Variable(tf.constant(1.0, shape=[depth]))
     
-    layer3_weights = tf.Variable(tf.truncated_normal( [ 43200, num_hidden], stddev=0.1))
-    layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
+    # First conv + max_pool
+    row1 = math.ceil(nrows / 4.)
+    col1 = math.ceil(ncols / 4.)
+    # Second conv + max_pool
+    row2 = math.ceil(row1 / 4.)
+    col2 = math.ceil(col1 / 4.)
+    # Layer 2 output feature map size
+    feature_map_size = int(row2 * col2) * depth
 
-    layer4_weights = tf.Variable(tf.truncated_normal([num_hidden, output_size], stddev=0.1))
+    layer3_weights = tf.Variable(tf.truncated_normal( [ feature_map_size, num_neurons], stddev=0.1))
+    layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_neurons]))
+
+    layer4_weights = tf.Variable(tf.truncated_normal([num_neurons, output_size], stddev=0.1))
     layer4_biases = tf.Variable(tf.constant(1.0, shape=[output_size]))
 
-    # weigths = tf.Variable( tf.truncated_normal( [npixels, output_size] ) )
-    # biases = tf.Variable( tf.zeros([output_size]) )
-
     def connections(data):
-        strides = [1, 2, 2, 1]
-        conv = tf.nn.conv2d(data, layer1_weights, strides, padding='SAME')
-        # tf.nn.batch_normalization()
+        conv_strides = [1, 2, 2, 1]
+        pooling_strides = [1, 2, 2, 1]
+        pooling_kernel = [1, 2, 2, 1]
+
+        conv = tf.nn.conv2d(data, layer1_weights, conv_strides, padding='SAME')
         relu = tf.nn.relu(conv + layer1_biases)
-        pool = tf.nn.max_pool(relu, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-        conv = tf.nn.conv2d(pool, layer2_weights, strides, padding='SAME')
+        pool = tf.nn.max_pool(relu, pooling_kernel, pooling_strides, padding='SAME')
+
+        conv = tf.nn.conv2d(pool, layer2_weights, conv_strides, padding='SAME')
         relu = tf.nn.relu(conv + layer2_biases)
-        pool = tf.nn.max_pool(relu, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        pool = tf.nn.max_pool(relu, pooling_kernel, pooling_strides, padding='SAME')
+
         pool_shape = pool.get_shape().as_list()
         reshape = tf.reshape(pool, [pool_shape[0], pool_shape[1] * pool_shape[2] * pool_shape[3]])
         hidden = tf.nn.relu(tf.matmul(reshape, layer3_weights) + layer3_biases)
