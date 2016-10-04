@@ -46,9 +46,9 @@ def load( gt_dir, object_name ):
             array = [[int(x) for x in line.split()] for line in fileHandle]
             ground_truth_list.append( array )
     ground_truth = np.array( ground_truth_list )
-    # Pixels that don't belong to the object receive 0
-    for i in range( len(ground_truth) ):
-        non_object_index = np.where( ground_truth[i] != object_ID )
-        ground_truth[i][non_object_index] = 0
+#    # Pixels that don't belong to the object receive 0
+#    for i in range( len(ground_truth) ):
+#        non_object_index = np.where( ground_truth[i] != object_ID )
+#        ground_truth[i][non_object_index] = 0
     return ground_truth
 
