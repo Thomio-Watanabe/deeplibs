@@ -34,6 +34,14 @@ def rgb2grey(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
 
+def rgb2grey_array( images_array ):
+    num_images, num_rows, num_cols, num_channels = images_array.shape
+    grey_images = np.ndarray( shape = (num_images, num_rows, num_cols), dtype = np.float32 )
+    for i in range( num_images ):
+        grey_images[i] = rgb2grey( images_array[i] )
+    return grey_images
+
+
 def normalize_image( array_2D, pixel_depth = 255.0 ):
     return ( array_2D - (pixel_depth) / 2 ) / pixel_depth
 
