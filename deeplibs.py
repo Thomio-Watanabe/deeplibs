@@ -1,20 +1,20 @@
 #!/usr/bin/python
-import Tkinter as tk
-import tkFileDialog
-import ttk
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import ttk
 
 
 def dataset_callback(*dataset_name):
-    print "New dataset name!"
+    print( "New dataset name!" )
 
 def model_callback(*model_name):
-    print "New model name!"
+    print( "New model name!" )
 
 def get_img_directory():
-    imgs_dir_name.set( tkFileDialog.askdirectory() )
+    imgs_dir_name.set( filedialog.askdirectory() )
 
 def get_gt_directory():
-    gt_dir_name.set( tkFileDialog.askdirectory() )
+    gt_dir_name.set( filedialog.askdirectory() )
 
 def close_window(): 
     window.destroy()
