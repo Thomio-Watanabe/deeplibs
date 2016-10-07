@@ -1,12 +1,13 @@
 #!/usr/bin/python
-try: # python2
-    import Tkinter as tk
-    import tkFileDialog as filedialog
-    import ttk
-except ImportError: # python3
+try: # python3
     import tkinter as tk
     from tkinter import filedialog
     from tkinter import ttk
+except ImportError: # python2
+    import Tkinter as tk
+    import tkFileDialog as filedialog
+    import ttk
+
 
 from image_modules import mnist_dataset
 from image_modules import cifar10_dataset
@@ -16,7 +17,7 @@ from tf_modules import AlexNet
 
 class DeepLibsGUI:
     def __init__( self, window ):
-        self.datasets = 'mnist', 'cifar'
+        self.datasets = 'mnist', 'cifar10'
         self.models = 'LeNet', 'AlexNet'
 
         dataset_label = tk.Label( window, width = 12, text="Datasets:", fg="black")

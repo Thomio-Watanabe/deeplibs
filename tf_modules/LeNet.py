@@ -6,7 +6,7 @@ import time
 import sys
 
 '''
-LeNet model retrived from tensorflow source code, at: www.github.com/tensorflow
+LeNet model retrived from tensorflow source code at: www.github.com/tensorflow
 This code is under apache licence which is compatible with GNU GPLv2
 Modified by Thomio Watanabe
 '''
