@@ -45,7 +45,6 @@ def model( dataset ):
   SEED = None  # Set to None for random seed
   NUM_ROWS = dataset.num_rows
   NUM_COLS = dataset.num_cols
-  IMAGE_SIZE = dataset.image_size
   NUM_LABELS = dataset.num_labels
   NUM_CHANNELS = dataset.num_channels
   TRAIN_SIZE = dataset.train_labels.shape[0]
