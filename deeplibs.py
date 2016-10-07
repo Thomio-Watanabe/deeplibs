@@ -14,69 +14,76 @@ from tf_modules import LeNet
 from tf_modules import AlexNet
 
 
+class DeepLibsGUI:
+    def __init__( self, window ):
+        self.datasets = 'mnist', 'cifar'
+        self.models = 'LeNet', 'AlexNet'
 
-def get_img_directory():
-    imgs_dir_name.set( filedialog.askdirectory() )
+        dataset_label = tk.Label( window, width = 12, text="Datasets:", fg="black")
+        dataset_label.grid(row=0, column=0)
+        self.dataset_name = tk.StringVar( )
+        self.dataset_name.set('Select dataset')
+        dataset_cbox = ttk.Combobox( window, width = 15, textvariable=self.dataset_name, state='readonly' )
+        dataset_cbox['values'] = ( self.datasets )
+        dataset_cbox.grid( row=0, column=1, padx=2, pady=2 )
 
-def get_gt_directory():
-    gt_dir_name.set( filedialog.askdirectory() )
+        model_label = tk.Label( window, width = 12, text="Models:", fg="black")
+        model_label.grid( row=1, column=0 )
+        self.model_name = tk.StringVar( )
+        self.model_name.set('Select model')
+        model_cbox = ttk.Combobox( window, width = 15, textvariable=self.model_name, state='readonly' )
+        model_cbox['values'] = ( self.models )
+        model_cbox.grid( row=1, column=1, padx=2, pady=2 )
 
-def close_window(): 
-    window.destroy()
+        imgs_directory = tk.Button(window, text ="Images Dir", width = 12, command = self.get_img_directory).grid( row=3, column = 0 )
+        self.imgs_dir_name = tk.StringVar( )
+        self.imgs_dir_name.set('Image dir')
+        imgs_dir_entry = tk.Entry( window, width = 16, textvariable=self.imgs_dir_name, state='readonly' )
+        imgs_dir_entry.grid( row=3, column=1, padx=2, pady=2 )
 
-def train_model():
-    if dataset_name.get() == 'mnist':
-        dataset = mnist_dataset.MnistDataset()
-    if dataset_name.get() == 'cifar10':
-        dataset = cifar10_dataset.Cifar10Dataset()
+        gt_directory = tk.Button(window, text ="Ground Truth Dir", width = 12, command = self.get_gt_directory).grid( row=4, column = 0 )
+        self.gt_dir_name = tk.StringVar( )
+        self.gt_dir_name.set('Ground truth dir')
+        gt_dir_entry = tk.Entry( window, width = 16, textvariable=self.gt_dir_name, state='readonly' )
+        gt_dir_entry.grid( row=4, column=1, padx=2, pady=2 )
 
-    dataset.load_images( imgs_dir_name.get() )
-    dataset.load_labels( gt_dir_name.get() )
-    dataset.format_dataset()
+        close = tk.Button(window, text ="Close", width = 12, command = self.close_window ).grid( row=5, column = 0 )
+        run_training = tk.Button(window, text ="Train model", width = 12, command = self.train_model).grid( row=5, column = 1 )
 
-    if model_name.get() == 'LeNet':
-        LeNet.model( dataset )
-    if model_name.get() == 'AlexNet':
-        AlexNet.model( dataset)
+    def get_img_directory( self ):
+        self.imgs_dir_name.set( filedialog.askdirectory() )
 
-    print('-- Finished training model.')
+    def get_gt_directory( self ):
+        self.gt_dir_name.set( filedialog.askdirectory() )
+
+    def close_window( self ):
+        window.destroy()
+
+    def train_model( self ):
+        if self.dataset_name.get() == 'mnist':
+            dataset = mnist_dataset.MnistDataset()
+            dataset.load_images( self.imgs_dir_name.get() )
+            dataset.load_labels( self.gt_dir_name.get() )
+            dataset.format_dataset()
+
+        if self.dataset_name.get() == 'cifar10':
+            dataset = cifar10_dataset.Cifar10Dataset()
+            dataset.load_images( self.imgs_dir_name.get() )
+            dataset.load_labels( self.gt_dir_name.get() )
+            dataset.format_dataset()
+
+        if self.model_name.get() == 'LeNet':
+            LeNet.model( dataset )
+        if self.model_name.get() == 'AlexNet':
+            AlexNet.model( dataset )
+
+        print('-- Finished training model.')
 
 
-
-window = tk.Tk()
-window.wm_title('DeepLibs')
-window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
-
-dataset_label = tk.Label( window, width = 12, text="Datasets:", fg="black")
-dataset_label.grid(row=0, column=0)
-dataset_name = tk.StringVar( )
-dataset_name.set('Select dataset')
-dataset_cbox = ttk.Combobox( window, width = 15, textvariable=dataset_name, state='readonly' )
-dataset_cbox['values'] = ('mnist', 'cifar10')
-dataset_cbox.grid( row=0, column=1, padx=2, pady=2 )
-
-model_label = tk.Label( window, width = 12, text="Models:", fg="black")
-model_label.grid( row=1, column=0 )
-model_name = tk.StringVar( )
-model_name.set('Select model')
-model_cbox = ttk.Combobox( window, width = 15, textvariable=model_name, state='readonly' )
-model_cbox['values'] = ('LeNet', 'AlexNet')
-model_cbox.grid( row=1, column=1, padx=2, pady=2 )
-
-imgs_directory = tk.Button(window, text ="Images Dir", width = 12, command = get_img_directory).grid( row=3, column = 0 )
-imgs_dir_name = tk.StringVar( )
-imgs_dir_name.set('Image dir')
-imgs_dir_entry = tk.Entry( window, width = 16, textvariable=imgs_dir_name, state='readonly' )
-imgs_dir_entry.grid( row=3, column=1, padx=2, pady=2 )
-
-gt_directory = tk.Button(window, text ="Ground Truth Dir", width = 12, command = get_gt_directory).grid( row=4, column = 0 )
-gt_dir_name = tk.StringVar( )
-gt_dir_name.set('Ground truth dir')
-gt_dir_entry = tk.Entry( window, width = 16, textvariable=gt_dir_name, state='readonly' )
-gt_dir_entry.grid( row=4, column=1, padx=2, pady=2 )
-
-close = tk.Button(window, text ="Close", width = 12, command = close_window ).grid( row=5, column = 0 )
-run_training = tk.Button(window, text ="Train model", width = 12, command = train_model).grid( row=5, column = 1 )
-
-window.mainloop()
+if __name__ == '__main__':
+    window = tk.Tk()
+    window.wm_title('DeepLibs')
+    window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
+    DeepLibsGUI( window )
+    window.mainloop()
 
