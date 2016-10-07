@@ -1,7 +1,12 @@
 #!/usr/bin/python
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import ttk
+try: # python2
+    import Tkinter as tk
+    import tkFileDialog as filedialog
+    import ttk
+except ImportError: # python3
+    import tkinter as tk
+    from tkinter import filedialog
+    from tkinter import ttk
 
 
 def dataset_callback(*dataset_name):
