@@ -8,11 +8,12 @@ except ImportError: # python2
     import tkFileDialog as filedialog
     import ttk
 
-
+from multiprocessing import Process
 from image_modules import mnist_dataset
 from image_modules import cifar10_dataset
 from tf_modules import LeNet
 from tf_modules import AlexNet
+
 
 
 class DeepLibsGUI:
@@ -20,6 +21,7 @@ class DeepLibsGUI:
         self.datasets = 'mnist', 'cifar10'
         self.models = 'LeNet', 'AlexNet'
 
+        self.child_process = None
         dataset_label = tk.Label( window, width = 12, text="Datasets:", fg="black")
         dataset_label.grid(row=0, column=0)
         self.dataset_name = tk.StringVar( )
@@ -48,8 +50,9 @@ class DeepLibsGUI:
         gt_dir_entry = tk.Entry( window, width = 30, textvariable=self.gt_dir_name, state='readonly' )
         gt_dir_entry.grid( row=3, column=1, columnspan=2, padx=2, pady=2, sticky = tk.E )
 
-        close = tk.Button(window, text ="Close", width = 12, command = self.close_window ).grid( row=4, column = 1, padx=2, pady=2  )
-        run_training = tk.Button(window, text ="Train model", width = 12, command = self.train_model).grid( row=4, column = 2, padx=2, pady=2  )
+        tk.Button(window, text ="Close window", width = 12, command = self.close_window ).grid( row=4, column = 0, padx=2, pady=2  )
+        tk.Button(window, text ="Stop training", width = 12, command = self.stop_training ).grid( row=4, column = 1, padx=2, pady=2  )
+        tk.Button(window, text ="Train model", width = 12, command = self.train_model).grid( row=4, column = 2, padx=2, pady=2  )
 
     def get_img_directory( self ):
         self.imgs_dir_name.set( filedialog.askdirectory() )
@@ -57,7 +60,16 @@ class DeepLibsGUI:
     def get_gt_directory( self ):
         self.gt_dir_name.set( filedialog.askdirectory() )
 
+    def stop_training( self ):
+        try:
+            self.child_process.terminate()
+            print('-- Stop training.')
+        except AttributeError:
+            print('-- No child process was created.')
+            pass
+
     def close_window( self ):
+        self.stop_training()
         window.destroy()
 
     def train_model( self ):
@@ -73,11 +85,13 @@ class DeepLibsGUI:
             dataset.load_labels( self.gt_dir_name.get() )
             dataset.format_dataset()
 
+        # Train model in a child process and dont block the GUI
         if self.model_name.get() == 'LeNet':
-            LeNet.model( dataset )
+            self.child_process = Process( target=LeNet.model, args=(dataset,))
         if self.model_name.get() == 'AlexNet':
-            AlexNet.model( dataset )
+            self.child_process = Process( target=AlexNet.model, args=(dataset,) )
 
+        self.child_process.start()
         print('-- Finished training model.')
 
 
@@ -86,6 +100,7 @@ if __name__ == '__main__':
     window.wm_title('DeepLibs')
     window.resizable(width=False, height=False)
     window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
-    DeepLibsGUI( window )
+    window_handler = DeepLibsGUI( window )
+    window.protocol("WM_DELETE_WINDOW", window_handler.close_window)
     window.mainloop()
 
