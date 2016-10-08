@@ -15,7 +15,6 @@ class Cifar10Dataset():
     def __init__( self, num_rows = 32, num_cols = 32 ):
         self.num_rows = 32
         self.num_cols = 32
-        self.image_size = num_rows
         self.num_labels = 10
         self.num_channels = 3
 
@@ -58,7 +57,7 @@ class Cifar10Dataset():
         self.images_05, self.labels_05 = extract_data( batch_05 )
         self.images_06, self.labels_06 = extract_data( test_batch )
 
-    def load_labels( self ):
+    def load_labels( self, labels_dir ):
         print('-- Labels were loaded with images.')
 
     def format_dataset( self,
@@ -115,7 +114,10 @@ class Cifar10Dataset():
 
 def unpickle(file_name):
     file_handle = open(file_name, 'rb')
-    unpickled_data = pickle.load(file_handle, encoding = 'latin1')
+    try:    # python3
+        unpickled_data = pickle.load(file_handle, encoding = 'latin1')
+    except TypeError:   # python2
+        unpickled_data = pickle.load(file_handle)
     return unpickled_data
 
 
