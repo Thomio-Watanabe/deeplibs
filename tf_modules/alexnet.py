@@ -39,11 +39,11 @@ import math
 class AlexNet( BaseModel ):
     def __init__( self, dataset ):
         self.validation_data = dataset.validation_data
-        self.validation_labels = dataset.validation_labels 
+        self.validation_labels = dataset.validation_labels
         self.train_data = dataset.train_data
         self.train_labels = dataset.train_labels
-        test_data = dataset.test_data
-        test_labels = dataset.test_labels
+        self.test_data = dataset.test_data
+        self.test_labels = dataset.test_labels
 
         self.SEED = None  # Set to None for random seed
         self.NUM_ROWS = dataset.num_rows
@@ -59,12 +59,12 @@ class AlexNet( BaseModel ):
         print('----------------------------' )
         print('-- AlexNet --' )
         print('----------------------------' )
-        print('Validation data: ', dataset.validation_data.shape)
-        print('Validation labels: ', dataset.validation_labels.shape)
+        print('Validation data: ', self.validation_data.shape)
+        print('Validation labels: ', self.validation_labels.shape)
         print('Train_data:', self.train_data.shape)
         print('Train_labels:', self.train_labels.shape)
-        print('Test_data:', dataset.test_data.shape)
-        print('Test_labels:', dataset.test_labels.shape)
+        print('Test_data:', self.test_data.shape)
+        print('Test_labels:', self.test_labels.shape)
         print('Batch size:', self.BATCH_SIZE)
         print('Number of epochs:', self.NUM_EPOCHS)
         print('Evaluation batch size:', self.EVAL_BATCH_SIZE)

@@ -68,6 +68,6 @@ class BaseModel:
                     print('Minibatch error: %.1f%%' % self.error_rate( predictions, batch_labels) )
                     print('Validation error: %.1f%%' % self.error_rate( self.eval_in_batches(self.validation_data, sess), self.validation_labels) )
                     sys.stdout.flush()
-            test_error = self.error_rate( self.eval_in_batches(test_data, sess), test_labels )
+            test_error = self.error_rate( self.eval_in_batches(self.test_data, sess), self.test_labels )
             print('Test error: %.1f%%' % test_error)
 
