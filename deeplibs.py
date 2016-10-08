@@ -11,8 +11,8 @@ except ImportError: # python2
 from multiprocessing import Process
 from image_modules import mnist_dataset
 from image_modules import cifar10_dataset
-from tf_modules import LeNet
-from tf_modules import AlexNet
+from tf_modules.lenet import LeNet
+from tf_modules.alexnet import AlexNet
 
 
 
@@ -22,7 +22,7 @@ class DeepLibsGUI:
         self.models = 'LeNet', 'AlexNet'
 
         self.child_process = None
-        dataset_label = tk.Label( window, width = 12, text="Datasets:", fg="black")
+        dataset_label = tk.Label( window, width = 12, text="Dataset:", fg="black")
         dataset_label.grid(row=0, column=0)
         self.dataset_name = tk.StringVar( )
         self.dataset_name.set('Select dataset')
@@ -30,7 +30,7 @@ class DeepLibsGUI:
         dataset_cbox['values'] = ( self.datasets )
         dataset_cbox.grid( row=0, column=1, columnspan=2, padx=2, pady=2, sticky = tk.E )
 
-        model_label = tk.Label( window, width = 12, text="Models:", fg="black")
+        model_label = tk.Label( window, width = 12, text="Model:", fg="black")
         model_label.grid( row=1, column=0 )
         self.model_name = tk.StringVar( )
         self.model_name.set('Select model')
@@ -87,10 +87,11 @@ class DeepLibsGUI:
 
         # Train model in a child process and dont block the GUI
         if self.model_name.get() == 'LeNet':
-            self.child_process = Process( target=LeNet.model, args=(dataset,))
+            model = LeNet( dataset )
         if self.model_name.get() == 'AlexNet':
-            self.child_process = Process( target=AlexNet.model, args=(dataset,) )
+            model = AlexNet( dataset )
 
+        self.child_process = Process( target=model.train )
         self.child_process.start()
         print('-- Finished training model.')
 
