@@ -12,7 +12,7 @@ from multiprocessing import Process
 from image_modules import mnist_dataset
 from image_modules import cifar10_dataset
 from tf_modules import LeNet
-from tf_modules import AlexNet
+from tf_modules.alexnet import AlexNet
 
 
 
@@ -87,9 +87,10 @@ class DeepLibsGUI:
 
         # Train model in a child process and dont block the GUI
         if self.model_name.get() == 'LeNet':
-            self.child_process = Process( target=LeNet.model, args=(dataset,))
+            self.child_process = Process( target=LeNet.train, args=(dataset,))
         if self.model_name.get() == 'AlexNet':
-            self.child_process = Process( target=AlexNet.model, args=(dataset,) )
+            model = AlexNet( dataset )
+            self.child_process = Process( target=model.train )
 
         self.child_process.start()
         print('-- Finished training model.')

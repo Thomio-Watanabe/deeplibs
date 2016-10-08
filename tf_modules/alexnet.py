@@ -1,5 +1,5 @@
 from __future__ import print_function
-from BaseModel import BaseModel
+from base_model import BaseModel
 import tensorflow as tf
 import numpy as np
 import math
