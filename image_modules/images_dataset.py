@@ -14,11 +14,11 @@ class ImagesDataset:
         self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
 
         if choose: # Analyse images and save those with more frequent nrows,ncols
-            self.names, self.images, self.nrows, self.ncols = choose_images( self.names, self.images_list, self.rows_list, self.cols_list )
+            self.names, self.images, self.num_rows, self.num_cols = choose_images( self.names, self.images_list, self.rows_list, self.cols_list )
         elif resize: # Load images and resize them with default nrows,ncols
-            self.images = resize_images( self.names, self.images_list, self.nrows, self.ncols )
+            self.images = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
         else: # Load images with default nrows, ncols (defined in their child class constructor)
-            self.names, self.images = save_default( self.names, self.images_list, self.nrows, self.ncols )
+            self.names, self.images = save_default( self.names, self.images_list, self.num_rows, self.num_cols )
 
         # gray_scale and normalize functions dont change the number of loaded images
         if gray_scale:
@@ -36,26 +36,30 @@ class ImagesDataset:
         self.ground_truth = reduce_gt(grid, self.ground_truth)
 
     def format_dataset( self ):
-        # # classification models have labels instead of ground_truth
+        # Classification models have labels instead of ground_truth
         # model_classes = ['classification', 'segmentation', 'detection']
-        # if model_type not in model_classes:
+        # if self.model_type not in model_classes:
         #     print( '-- Model type ', model_type,' not found.' )
         #     print( '-- Possible options are: ', model_classes )
         #     raise SystemExit
-        return format_dataset( self.images, self.nrows, self.ncols, self.ground_truth )
+        return format_dataset( self.images, self.num_rows, self.num_cols, self.ground_truth )
+
 
 
 def rgb2gray( images_array ):
+    print('-- Transforming to gray scale...')
     num_images, num_rows, num_cols, num_channels = images_array.shape
     grey_images = np.ndarray( shape = (num_images, num_rows, num_cols), dtype = np.float32 )
     for i in range( num_images ):
-        grey_images[i] = np.dot( images_array[...,:3], [0.299, 0.587, 0.114] )
+        img = images_array[i]
+        grey_images[i] = np.dot( img[...,:3], [0.299, 0.587, 0.114] )
     return grey_images
 
 
 def normalize_images( images_array, pixel_depth = 255.0 ):
-    num_images, nrows, ncols, _ = images_array.shape
-    for i in range( num_images ):
+    print('-- Normalizing images...')
+    images_shape = images_array.shape
+    for i in range( images_shape[0] ):
         images_array[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
     return images_array
 
@@ -143,10 +147,7 @@ def choose_images( names, images, rows, cols ):
     return names, images, nrows, ncols
 
 
-def resize_images( names, images, nrows, ncols ):
-    # num_images = len( images )
-    nchannels = len( images[0][0][0] )
-    # new_images = np.ndarray(shape=(num_images, nrows, ncols, num_channels), dtype=float)
+def resize_images( names, images, nrows, ncols, nchannels ):
     new_images = []
     for i in range( len(images) ):
         image_shape = images[i].shape
@@ -183,12 +184,7 @@ def format_dataset( images, nrows, ncols, ground_truth ):
     # Transform each 2D image in an unidimentional array
     nimages = len( images )
     num_channels = 1
-    images = images.reshape( (-1, nrows, ncols, num_channels)).astype(np.float32)
-
-    gt_nrows = ground_truth.shape[1]
-    gt_ncols = ground_truth.shape[2]
-    output_size = gt_nrows * gt_ncols
-    ground_truth = ground_truth.reshape( (-1, gt_nrows * gt_ncols)).astype(np.float32)
+    images = images.reshape( (-1, nrows, ncols, num_channels) ).astype(np.float32)
 
     # Separate dataset in training, validation and test
     nimages_training = int( 0.6 * nimages )
@@ -199,9 +195,13 @@ def format_dataset( images, nrows, ncols, ground_truth ):
     # images_validation
     # images_test
 
+    gt_nrows = ground_truth.shape[1]
+    gt_ncols = ground_truth.shape[2]
+    output_size = gt_nrows * gt_ncols
+    ground_truth = ground_truth.reshape( (-1, gt_nrows * gt_ncols) ).astype(np.float32)
     ground_truth_training = ground_truth[0:nimages_training, :]
-    # bb_validation
-    # bb_test
+    # ground_truth_validation
+    # ground_truth_test
 
     images_info = nrows, ncols, num_channels, output_size
     data_size = nimages_training, nimages_validation, nimages_test

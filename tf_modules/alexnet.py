@@ -56,9 +56,9 @@ class AlexNet( BaseModel ):
         self.EVAL_BATCH_SIZE = dataset.eval_batch_size
         self.EVAL_FREQUENCY = dataset.eval_frequency
 
-        print('----------------------------' )
+        print('-------------' )
         print('-- AlexNet --' )
-        print('----------------------------' )
+        print('-------------' )
         print('Validation data: ', self.validation_data.shape)
         print('Validation labels: ', self.validation_labels.shape)
         print('Train_data:', self.train_data.shape)

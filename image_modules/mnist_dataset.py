@@ -11,6 +11,9 @@ Thomio Watanabe 2016
 
 class MnistDataset():
     def __init__(self, num_rows = 28, num_cols = 28):
+        print('-------------------')
+        print('-- MNIST Dataset --')
+        print('-------------------')
         self.num_rows = num_rows
         self.num_cols = num_cols
         self.image_size = num_rows

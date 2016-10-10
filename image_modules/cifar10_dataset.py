@@ -13,6 +13,9 @@ import os
 
 class Cifar10Dataset():
     def __init__( self, num_rows = 32, num_cols = 32 ):
+        print('---------------------')
+        print('-- Cifar10 Dataset --')
+        print('---------------------')
         self.num_rows = 32
         self.num_cols = 32
         self.num_labels = 10
@@ -61,7 +64,7 @@ class Cifar10Dataset():
         print('-- Labels were loaded with images.')
 
     def format_dataset( self,
-                        grey_scale = True,
+                        gray_scale = False,
                         normalize = True,
                         validation_size = 5000,
                         batch_size = 64,
@@ -85,9 +88,9 @@ class Cifar10Dataset():
         self.test_labels = self.labels_06
 
 
-        if grey_scale:
-            self.train_images = images_dataset.rgb2grey_array( self.train_images )
-            self.test_images = images_dataset.rgb2grey_array( self.test_images )
+        if gray_scale:
+            self.train_images = images_dataset.rgb2gray( self.train_images )
+            self.test_images = images_dataset.rgb2gray( self.test_images )
             self.num_channels = 1
 
         train_size = self.train_images.shape[0]

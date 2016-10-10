@@ -5,12 +5,12 @@ import os
 
 class KittiDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 375, ncols = 1242):
-        self.nrows = nrows
-        self.ncols = ncols
+        self.num_rows = nrows
+        self.num_cols = ncols
 
     def load_gt(self, labels_dir, object_name ):
         self.labels = load_kitti_labels( labels_dir, object_name )
-        self.ground_truth = get_bb_pixels( self.names, self.labels, self.nrows, self.ncols )
+        self.ground_truth = get_bb_pixels( self.names, self.labels, self.num_cols, self.num_cols )
 
 
 def load_kitti_labels( labels_dir, object_name ):

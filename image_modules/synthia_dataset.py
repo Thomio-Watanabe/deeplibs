@@ -5,8 +5,8 @@ import os
 
 class SynthiaDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 720, ncols = 960):
-        self.nrows = nrows
-        self.ncols = ncols
+        self.num_rows = nrows
+        self.num_cols = ncols
 
     # Synthia dataset doesn't have a bb, each pixel has a class.
     # Thus, we don't need to load label files, we load the ground truth straight from the txt file.
