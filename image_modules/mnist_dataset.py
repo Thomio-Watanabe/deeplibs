@@ -71,7 +71,7 @@ def load_images_file( path_to_file, number_images, num_rows, num_cols ):
     with open( path_to_file, 'rb' ) as image_file:
         magic, num, rows, cols = struct.unpack( ">IIII", image_file.read(16) )
         images = np.fromfile( image_file, dtype=np.uint8 ).reshape( number_images, num_rows, num_cols)
-        images_dataset.analyse_images( images )
+        images_dataset.images_info( images )
     return images
 
 

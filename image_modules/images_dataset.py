@@ -1,4 +1,5 @@
 from __future__ import print_function
+from scipy.misc import imresize
 from scipy import ndimage
 import numpy as np
 import os
@@ -9,11 +10,26 @@ class ImagesDataset:
     def __init__(self):
         pass
 
-    def load_images( self, training_dir, analyse = False ):
-        if( analyse ):
-            self.names, self.images, self.nrows, self.ncols = choose_images( training_dir )
-        else:
-            self.names, self.images = load( training_dir, self.nrows, self.ncols )
+    def load_images( self, training_dir, choose = False, resize = False, gray_scale = False, normalize = True ):
+        self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
+
+        if choose: # Analyse images and save those with more frequent nrows,ncols
+            self.names, self.images, self.nrows, self.ncols = choose_images( self.names, self.images_list, self.rows_list, self.cols_list )
+        elif resize: # Load images and resize them with default nrows,ncols
+            self.images = resize_images( self.names, self.images_list, self.nrows, self.ncols )
+        else: # Load images with default nrows, ncols (defined in their child class constructor)
+            self.names, self.images = save_default( self.names, self.images_list, self.nrows, self.ncols )
+
+        # gray_scale and normalize functions dont change the number of loaded images
+        if gray_scale:
+            self.images = rgb2gray( self.images )
+
+        if normalize:
+            self.images = normalize_images( self.images )
+
+        # Print general info about the loaded images
+        images_info( self.images )
+
 
     # divide the image in grid blocs
     def create_gt_grid( self, grid = [25,27] ):
@@ -29,31 +45,22 @@ class ImagesDataset:
         return format_dataset( self.images, self.nrows, self.ncols, self.ground_truth )
 
 
-
-def rgb2grey(rgb):
-    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
-
-
-def rgb2grey_array( images_array ):
+def rgb2gray( images_array ):
     num_images, num_rows, num_cols, num_channels = images_array.shape
     grey_images = np.ndarray( shape = (num_images, num_rows, num_cols), dtype = np.float32 )
     for i in range( num_images ):
-        grey_images[i] = rgb2grey( images_array[i] )
+        grey_images[i] = np.dot( images_array[...,:3], [0.299, 0.587, 0.114] )
     return grey_images
 
 
-def normalize_image( array_2D, pixel_depth = 255.0 ):
-    return ( array_2D - (pixel_depth) / 2 ) / pixel_depth
-
-
-def normalize_images( images_array, pixel_depth = 255.0):
+def normalize_images( images_array, pixel_depth = 255.0 ):
     num_images, nrows, ncols, _ = images_array.shape
     for i in range( num_images ):
         images_array[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
     return images_array
 
 
-def analyse_images( images ):
+def images_info( images ):
     img = images[0]
     print( 'Image array format:', img.shape )
     print( 'Total number of images loaded: ', len( images ) )
@@ -61,74 +68,65 @@ def analyse_images( images ):
     print( 'Intensity min value:', np.amin(img) )
 
 
-'''
-REWRITE this function to:
- - add zeros if the image is small than nrows x ncols
- - remove pixels if the image is larger than nrows x ncols
-'''
-def load( training_dir, nrows, ncols, grey_scale = True ):
-    '''Load images with nrows and ncols.
-
-    In some datasets the images doesn't have equal number of rows and columns.
-
-    Args:
-        training_dir (str): String with the training images directory.
-        nrows (int): Number of rows of the images.
-        ncols (int): Number of cols of the images.
-        grey_scale (bool): Flag to transfor RGB images into grey scale.
-    '''
+def load_all_images( training_dir ):
     image_files = os.listdir( training_dir )
-    # Index array has all the images with the parsed nrows and ncols
     names = []
+    rows = []
+    cols = []
     images = []
-    print( '-- Loading (', nrows, 'x', ncols, ') images...' )
+    print( '-- Loading all images...' )
     for image_index, image_name in enumerate( image_files ):
         image_file = os.path.join( training_dir, image_name )
         image_array = ndimage.imread( image_file ).astype(float)
-        if( (nrows == len(image_array)) and (ncols == len(image_array[0])) ):
-            if( grey_scale ):
-                image_array = rgb2grey( image_array )
-            normalized_image = normalize_image( image_array )
-            names.append( image_name )
-            images.append( normalized_image )
-    analyse_images( images )
-    images = np.array(images)
-    return names, images
+        names.append( image_name )
+        rows.append( len(image_array) )
+        cols.append( len(image_array[0]) )
+        images.append( image_array )
+    return names, images, rows, cols
 
 
-def choose_images( training_dir, grey_scale = True ):
+def save_default( names, images, nrows, ncols ):
+    '''Load images with nrows and ncols.
+    In some datasets the images doesn't have equal number of rows and columns.
+
+    Args:
+        images (numpy array): Numpy images array.
+        nrows (int): Number of rows of the images.
+        ncols (int): Number of cols of the images.
+    Return:
+        names:
+        images (numpy array): Numpy array with nrows,ncols images
+    '''
+    new_names = []
+    new_images = []
+    print( '-- Selecting (', nrows, 'x', ncols, ') images...' )
+    for i in range( len(images) ):
+        if nrows == len(images[i]) and ncols == len(images[i][0]) :
+            new_names.append( names[i] )
+            new_images.append( images[i] )
+    new_images = np.array( new_images )
+    return new_names, new_images
+
+
+def choose_images( names, images, rows, cols ):
     '''Analyse the images from training_dir and load the images with the same nrows and ncols.
 
     In some datasets the images doesn't have equal number of rows and columns.
-    This function load the separate the images in subsets based in their nrows and ncols.
+    This function load the separate the images in subsets based in their nrows and ncols...'
     Then we pick the largest subset.
 
     Args:
         training_dir (str): String with the training images directory.
     '''
-    names = []
-    images = []
-    rows = []
-    cols = []
-    image_files = os.listdir( training_dir )
-    print( '-- Loading all images...' )
-    for image_index, image_name in enumerate( image_files ):
-        names.append( image_name )
-        image_file = os.path.join( training_dir, image_name )
-        image_array = ndimage.imread( image_file ).astype(float)
-        rows.append( len(image_array) )
-        cols.append( len(image_array[0]) )
-        images.append( image_array )
-
     unique, counts = np.unique( rows, return_counts = True )
     index = np.argmax(counts)
-    print( '-- Frequency of the number of rows: ' )
+    print( 'Frequency of the number of rows: ' )
     print( np.asarray((unique, counts)).T )
     nrows = unique[index]
 
     unique, counts = np.unique( cols, return_counts = True )
     index = np.argmax(counts)
-    print( '-- Frequency of the number of cols: ' )
+    print( 'Frequency of the number of cols: ' )
     print( np.asarray((unique, counts)).T )
     ncols = unique[index]
 
@@ -138,21 +136,30 @@ def choose_images( training_dir, grey_scale = True ):
             images.pop(i)
             names.pop(i)
 
-    print( '-- Number of rows more frequent:', nrows )
-    print( '-- Number of cols more frequent:', ncols )
+    print( 'Number of rows more frequent:', nrows )
+    print( 'Number of cols more frequent:', ncols )
 
-    for i in range( len(images) ):
-        if( grey_scale ):
-            images[i] = rgb2grey( images[i] )
-        images[i] = normalize_image( images[i] )
-
-    analyse_images( images )
-    images = np.array(images)
+    images = np.array( images )
     return names, images, nrows, ncols
 
 
+def resize_images( names, images, nrows, ncols ):
+    # num_images = len( images )
+    nchannels = len( images[0][0][0] )
+    # new_images = np.ndarray(shape=(num_images, nrows, ncols, num_channels), dtype=float)
+    new_images = []
+    for i in range( len(images) ):
+        image_shape = images[i].shape
+        if len(image_shape) == 3 and image_shape[2] == nchannels:
+            if image_shape[0] != nrows or image_shape[1] != ncols:
+                images[i] = imresize( images[i], [nrows, ncols], interp = 'bilinear' )
+            new_images.append( images[i] )
+    new_images = np.array( new_images )
+    return new_images
+
+
 def reduce_gt(grid, ground_truth):
-    print( '-- Creating grid for the ground truth...' )
+    print( 'Creating grid for the ground truth...' )
     n_bb = ground_truth.shape[0]
     horizontal_size = int(ground_truth.shape[1] / grid[0])
     vertical_size = int(ground_truth.shape[2] / grid[1])
