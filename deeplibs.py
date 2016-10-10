@@ -100,7 +100,10 @@ if __name__ == '__main__':
     window = tk.Tk()
     window.wm_title('DeepLibs')
     window.resizable(width=False, height=False)
-    window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
+    try:
+        window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
+    except tk.TclError:
+        pass
     window_handler = DeepLibsGUI( window )
     window.protocol("WM_DELETE_WINDOW", window_handler.close_window)
     window.mainloop()
