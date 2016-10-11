@@ -14,7 +14,7 @@ class ILSVRC2012Dataset( ImagesDataset ):
         self.num_labels = 1000
         self.num_channels = 3
 
-    def load_gt( self, gt_dir ):
+    def load_labels( self, gt_dir ):
         self.labels = load_labels( gt_dir )
 
     def format( self,
@@ -24,6 +24,7 @@ class ILSVRC2012Dataset( ImagesDataset ):
                 eval_frequency = 100):
         num_images = len( self.images )
         self.labels = self.labels[:num_images]
+        self.labels = self.labels.reshape( num_images )
 
         # 20% os the images and labels go for validation and test
         validation_size = int( num_images / 10 )

@@ -11,6 +11,7 @@ except ImportError: # python2
 from multiprocessing import Process
 from image_modules import mnist_dataset
 from image_modules import cifar10_dataset
+from image_modules import ilsvrc2012
 from tf_modules.lenet import LeNet
 from tf_modules.alexnet import AlexNet
 
@@ -18,7 +19,7 @@ from tf_modules.alexnet import AlexNet
 
 class DeepLibsGUI:
     def __init__( self, window ):
-        self.datasets = 'mnist', 'cifar10'
+        self.datasets = 'mnist', 'cifar10', 'ilsvrc2012'
         self.models = 'LeNet', 'AlexNet'
 
         self.child_process = None
@@ -85,6 +86,12 @@ class DeepLibsGUI:
             dataset.load_labels( self.gt_dir_name.get() )
             dataset.format_dataset()
 
+        if self.dataset_name.get() == 'ilsvrc2012':
+            dataset = ilsvrc2012.ILSVRC2012Dataset()
+            dataset.load_images( self.imgs_dir_name.get() )
+            dataset.load_labels( self.gt_dir_name.get() )
+            dataset.format()
+
         # Train model in a child process and dont block the GUI
         if self.model_name.get() == 'LeNet':
             model = LeNet( dataset )
@@ -93,7 +100,6 @@ class DeepLibsGUI:
 
         self.child_process = Process( target=model.train )
         self.child_process.start()
-        print('-- Finished training model.')
 
 
 if __name__ == '__main__':

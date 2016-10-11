@@ -70,4 +70,5 @@ class BaseModel:
                     sys.stdout.flush()
             test_error = self.error_rate( self.eval_in_batches(self.test_data, sess), self.test_labels )
             print('Test error: %.1f%%' % test_error)
+            print('-- Finished training model.')
 

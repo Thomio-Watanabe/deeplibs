@@ -18,7 +18,7 @@ class ImagesDataset:
         elif resize: # Load images and resize them with default nrows,ncols
             self.images = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
         else: # Load images with default nrows, ncols (defined in their child class constructor)
-            self.names, self.images = save_default( self.names, self.images_list, self.num_rows, self.num_cols )
+            self.names, self.images = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
 
         # gray_scale and normalize functions dont change the number of loaded images
         if gray_scale:
@@ -89,7 +89,7 @@ def load_all_images( training_dir ):
     return names, images, rows, cols
 
 
-def save_default( names, images, nrows, ncols ):
+def save_default( names, images, nrows, ncols, nchannels ):
     '''Load images with nrows and ncols.
     In some datasets the images doesn't have equal number of rows and columns.
 
@@ -105,9 +105,11 @@ def save_default( names, images, nrows, ncols ):
     new_images = []
     print( '-- Selecting (', nrows, 'x', ncols, ') images...' )
     for i in range( len(images) ):
-        if nrows == len(images[i]) and ncols == len(images[i][0]) :
-            new_names.append( names[i] )
-            new_images.append( images[i] )
+        image_shape = images[i].shape
+        if len(image_shape) == 3 and image_shape[2] == nchannels:
+            if nrows == len(images[i]) and ncols == len(images[i][0]) :
+                new_names.append( names[i] )
+                new_images.append( images[i] )
     new_images = np.array( new_images )
     return new_names, new_images
 
