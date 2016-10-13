@@ -7,6 +7,7 @@ class KittiDataset( images_dataset.ImagesDataset ):
     def __init__(self, nrows = 375, ncols = 1242):
         self.num_rows = nrows
         self.num_cols = ncols
+        self.num_channels = 3
 
     def load_gt(self, labels_dir, object_name ):
         self.labels = load_kitti_labels( labels_dir, object_name )

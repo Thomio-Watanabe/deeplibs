@@ -23,6 +23,7 @@ class ImagesDataset:
         # gray_scale and normalize functions dont change the number of loaded images
         if gray_scale:
             self.images = rgb2gray( self.images )
+            self.num_channels = 1
 
         if normalize:
             self.images = normalize_images( self.images )
