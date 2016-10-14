@@ -10,7 +10,7 @@ class ImagesDataset:
     def __init__(self):
         pass
 
-    def load_images( self, training_dir, choose = False, resize = False, gray_scale = False, normalize = True ):
+    def load_images( self, training_dir, choose = False, resize = False ):
         self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
 
         if choose: # Analyse images and save those with more frequent nrows,ncols
@@ -20,7 +20,20 @@ class ImagesDataset:
         else: # Load images with default nrows, ncols (defined in their child class constructor)
             self.names, self.images = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
 
-        # gray_scale and normalize functions dont change the number of loaded images
+        # Print general info about the loaded images
+        images_info( self.images )
+
+    # divide the image in grid blocs
+    def create_gt_grid( self, grid = [25,27] ):
+        self.ground_truth = reduce_gt(grid, self.ground_truth)
+
+    def format_dataset( self, gray_scale = False, normalize = True ):
+        # Classification models have labels instead of ground_truth
+        # model_classes = ['classification', 'segmentation', 'detection']
+        # if self.model_type not in model_classes:
+        #     print( '-- Model type ', model_type,' not found.' )
+        #     print( '-- Possible options are: ', model_classes )
+        #     raise SystemExit
         if gray_scale:
             self.images = rgb2gray( self.images )
             self.num_channels = 1
@@ -28,22 +41,8 @@ class ImagesDataset:
         if normalize:
             self.images = normalize_images( self.images )
 
-        # Print general info about the loaded images
-        images_info( self.images )
-
-
-    # divide the image in grid blocs
-    def create_gt_grid( self, grid = [25,27] ):
-        self.ground_truth = reduce_gt(grid, self.ground_truth)
-
-    def format_dataset( self ):
-        # Classification models have labels instead of ground_truth
-        # model_classes = ['classification', 'segmentation', 'detection']
-        # if self.model_type not in model_classes:
-        #     print( '-- Model type ', model_type,' not found.' )
-        #     print( '-- Possible options are: ', model_classes )
-        #     raise SystemExit
         return format_dataset( self.images, self.num_rows, self.num_cols, self.ground_truth )
+        # gray_scale and normalize functions dont change the number of loaded images
 
 
 

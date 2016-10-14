@@ -1,14 +1,13 @@
-from image_modules.images_dataset import ImagesDataset
+from image_modules import images_dataset
 import numpy as np
 import os
 
 
-class ILSVRC2012Dataset( ImagesDataset ):
+class ILSVRC2012Dataset( images_dataset.ImagesDataset ):
     def __init__( self, nrows = 375, ncols = 500 ):
         print('-------------------------')
         print('-- ILSVRC 2012 Dataset --')
         print('-------------------------')
-        self.model_type = 'classification'
         self.num_rows = nrows
         self.num_cols = ncols
         self.num_labels = 1000
@@ -18,10 +17,19 @@ class ILSVRC2012Dataset( ImagesDataset ):
         self.labels = load_labels( gt_dir )
 
     def format( self,
+                gray_scale = False,
+                normalize = True,
                 batch_size = 16,
                 num_epochs = 10,
                 eval_batch_size = 16,
                 eval_frequency = 100):
+        if gray_scale:
+            self.images = images_dataset.rgb2gray( self.images )
+            self.num_channels = 1
+
+        if normalize:
+            self.images = images_dataset.normalize_images( self.images )
+
         num_images = len( self.images )
         self.labels = self.labels[:num_images]
         # Format labels as 1D array of 1 element
