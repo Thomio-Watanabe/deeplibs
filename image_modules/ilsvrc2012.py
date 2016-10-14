@@ -30,17 +30,18 @@ class ILSVRC2012Dataset( images_dataset.ImagesDataset ):
         if normalize:
             self.images = images_dataset.normalize_images( self.images )
 
-        num_images = len( self.images )
-        self.labels = self.labels[:num_images]
         # Format labels as 1D array of 1 element
-        self.labels = self.labels.reshape( num_images, )
+        self.labels = self.labels.ravel()
+        # Get labels correspondent to each image
+        self.labels = self.labels[ self.images_index ]
 
         # Format images as 1D array of 4 elements
-        self.images = self.images.reshape( num_images, self.num_rows, self.num_cols, self.num_channels ).astype(np.float32)
+        _num_images = len( self.images_index )
+        self.images = self.images.reshape( _num_images, self.num_rows, self.num_cols, self.num_channels ).astype(np.float32)
 
         # 20% os the images and labels go for validation and test
-        validation_size = int( num_images / 10 )
-        test_size = int( num_images / 10 )
+        validation_size = int( _num_images / 10 )
+        test_size = int( _num_images / 10 )
 
         self.validation_data = self.images[:validation_size, ...]
         self.validation_labels = self.labels[:validation_size]
@@ -56,6 +57,8 @@ class ILSVRC2012Dataset( images_dataset.ImagesDataset ):
         self.num_epochs = num_epochs
         self.eval_batch_size = eval_batch_size
         self.eval_frequency = eval_frequency
+
+        images_dataset.images_info( self.images )
 
 
 def load_labels( gt_dir ):

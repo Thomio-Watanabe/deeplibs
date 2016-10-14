@@ -14,11 +14,11 @@ class ImagesDataset:
         self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
 
         if choose: # Analyse images and save those with more frequent nrows,ncols
-            self.names, self.images, self.num_rows, self.num_cols = choose_images( self.names, self.images_list, self.rows_list, self.cols_list )
+            self.names, self.images, self.num_rows, self.num_cols, self.images_index = choose_images( self.names, self.images_list, self.rows_list, self.cols_list, self.num_channels)
         elif resize: # Load images and resize them with default nrows,ncols
-            self.images = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
-        else: # Load images with default nrows, ncols (defined in their child class constructor)
-            self.names, self.images = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
+            self.names, self.images, self.images_index = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
+        else: # Load images with given num_rows, num_cols (defined in their child class constructor)
+            self.names, self.images, self.images_index = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
 
         # Print general info about the loaded images
         images_info( self.images )
@@ -47,40 +47,73 @@ class ImagesDataset:
 
 
 def rgb2gray( images_array ):
+    '''Function to transform an array of RGB images to an array of gray scale images.
+
+    Args:
+        images_array (numpy array): numpy array with 3 elements (num_images, num_rows, num_cols).
+
+    Returns:
+        grey_images (numpy array): float32 numpy array.
+    '''
     print('-- Transforming to gray scale...')
+    print('Input images shape:', images_array.shape )
     num_images, num_rows, num_cols, num_channels = images_array.shape
-    grey_images = np.ndarray( shape = (num_images, num_rows, num_cols), dtype = np.float32 )
+    grey_images = np.ndarray( shape = (num_images, num_rows, num_cols, 1), dtype = np.float32 )
     for i in range( num_images ):
         img = images_array[i]
-        grey_images[i] = np.dot( img[...,:3], [0.299, 0.587, 0.114] )
+        grey_images[i] = np.dot( img[...,:3], [0.299, 0.587, 0.114] ).reshape(num_rows, num_cols, 1)
     return grey_images
 
 
 def normalize_images( images_array, pixel_depth = 255.0 ):
+    '''Function to normalize an array of images.
+
+    Args:
+        images_array (numpy array): numpy array with 3 elements (num_images, num_rows, num_cols).
+        pixel_depth (Optional[float]: max values of pixel intensity. Default = 255.0.
+
+    Returns:
+        normalized_images (numpy array): float32 numpy array.
+    '''
     print('-- Normalizing images...')
-    images_shape = images_array.shape
-    for i in range( images_shape[0] ):
-        images_array[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
-    return images_array
+    print('Input images type:', images_array.dtype )
+    print('Input images shape:', images_array.shape )
+    num_images, num_rows, num_cols, num_channels = images_array.shape
+    normalized_images = np.ndarray( shape = (num_images, num_rows, num_cols, num_channels), dtype = np.float32 )
+    for i in range( num_images ):
+        normalized_images[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
+    return normalized_images
 
 
 def images_info( images ):
     img = images[0]
+    print( '-- Analyzing images' )
     print( 'Image array format:', img.shape )
     print( 'Total number of images loaded: ', len( images ) )
     print( 'Intensity max value:', np.amax(img) )
     print( 'Intensity min value:', np.amin(img) )
 
 
-def load_all_images( training_dir ):
-    image_files = os.listdir( training_dir )
+def load_all_images( images_dir ):
+    '''Load all images from directory
+
+    Args:
+        images_dir (str): Directory with images to load
+
+    Returns:
+        names (list[str]): List with loaded images names.
+        images (list[ndarray]): List with images (multidimensional array).
+        nrows (list[int]): List with number of rows of each image.
+        mcols (list[int]): List with number of cols of each image.
+    '''
+    image_files = os.listdir( images_dir )
     names = []
     rows = []
     cols = []
     images = []
     print( '-- Loading all images...' )
     for image_index, image_name in enumerate( image_files ):
-        image_file = os.path.join( training_dir, image_name )
+        image_file = os.path.join( images_dir, image_name )
         image_array = ndimage.imread( image_file ).astype(float)
         names.append( image_name )
         rows.append( len(image_array) )
@@ -90,75 +123,120 @@ def load_all_images( training_dir ):
 
 
 def save_default( names, images, nrows, ncols, nchannels ):
-    '''Load images with nrows and ncols.
+    '''Load images with nrows, ncols and nchannels.
     In some datasets the images doesn't have equal number of rows and columns.
 
     Args:
-        images (numpy array): Numpy images array.
+        names (list[str]): List with all images names.
+        images (list[ndarray]): List with images (multidimensional array).
         nrows (int): Number of rows of the images.
         ncols (int): Number of cols of the images.
-    Return:
-        names:
-        images (numpy array): Numpy array with nrows,ncols images
+        nchannels (int): Number of channels of the images.
+
+    Returns:
+        new_names (list[str]): List with loaded images names.
+        new_images (numpy array): Numpy array with nrows,ncols images.
+        images_index (numpy array): Numpy array with the selected images index from input images
     '''
     new_names = []
     new_images = []
+    images_index = []
     print( '-- Selecting (', nrows, 'x', ncols, ') images...' )
     for i in range( len(images) ):
         image_shape = images[i].shape
         if len(image_shape) == 3 and image_shape[2] == nchannels:
             if nrows == len(images[i]) and ncols == len(images[i][0]) :
+                images_index.append( i )
                 new_names.append( names[i] )
                 new_images.append( images[i] )
     new_images = np.array( new_images )
-    return new_names, new_images
+    return new_names, new_images, images_index
 
 
-def choose_images( names, images, rows, cols ):
-    '''Analyse the images from training_dir and load the images with the same nrows and ncols.
+def choose_images( names, images, rows_list, cols_list, nchannels):
+    '''Analyse the images and load those with the most frequent nrows and ncols.
 
     In some datasets the images doesn't have equal number of rows and columns.
-    This function load the separate the images in subsets based in their nrows and ncols...'
+    This function separate the images in subsets based in their nrows and ncols...'
     Then we pick the largest subset.
 
     Args:
-        training_dir (str): String with the training images directory.
+        names (list[str]): List with all images names.
+        images (list[ndarray]): List with images (multidimensional array).
+        rows_list (list[int]): List with the number of rows of each image.
+        cols_list (list[int]): List with the number of columns of each image.
+        nchannels (int): nchannels (int): Number of channels of the images.
+
+    Returns:
+        new_names (list[str]): List with loaded images names.
+        new_images (numpy array): Numpy array with nrows,ncols images.
+        nrows (int): Most frequent number of rows.
+        mcols (int): most frequent number of cols.
+        images_index (numpy array): Numpy array with the selected images index from input images
     '''
-    unique, counts = np.unique( rows, return_counts = True )
-    index = np.argmax(counts)
+    unique, counts = np.unique( rows_list, return_counts = True )
     print( 'Frequency of the number of rows: ' )
     print( np.asarray((unique, counts)).T )
+    index = np.argmax(counts)
     nrows = unique[index]
 
-    unique, counts = np.unique( cols, return_counts = True )
-    index = np.argmax(counts)
+    unique, counts = np.unique( cols_list, return_counts = True )
     print( 'Frequency of the number of cols: ' )
     print( np.asarray((unique, counts)).T )
+    index = np.argmax(counts)
     ncols = unique[index]
 
+    images_index = range( len(images) )
     # Remove images with different number of nrows x ncols
     for i in reversed( range(len(images)) ):
-        if( nrows != len(images[i]) or ncols != len(images[i][0]) ):
+        image_shape = images[i].shape
+        if len(image_shape) != 3 or image_shape[2] != nchannels:
             images.pop(i)
             names.pop(i)
+            images_index.pop(i)
+        elif( nrows != len(images[i]) or ncols != len(images[i][0]) ):
+            images.pop(i)
+            names.pop(i)
+            images_index.pop(i)
 
     print( 'Number of rows more frequent:', nrows )
     print( 'Number of cols more frequent:', ncols )
 
     images = np.array( images )
-    return names, images, nrows, ncols
+    return names, images, nrows, ncols, images_index
 
 
 def resize_images( names, images, nrows, ncols, nchannels ):
+    '''Resize and load images with nrows, ncols and nchannels.
+
+    This function will try to resize the images to (nrows,ncols).
+
+    Args:
+        names (list[str]): List with all images names.
+        images (list[ndarray]): List with images (multidimensional array).
+        nrows (int): Number of rows of the images.
+        ncols (int): Number of cols of the images.
+        nchannels (int): Number of channels of the images.
+
+    Returns:
+        new_names (list[str]): List with loaded images names
+        new_images (numpy array): Numpy array with nrows,ncols images
+        images_index (numpy array): Numpy array with the selected images index from input images
+    '''
+    new_names = []
     new_images = []
+    images_index = []
     for i in range( len(images) ):
         image_shape = images[i].shape
         if len(image_shape) == 3 and image_shape[2] == nchannels:
             if image_shape[0] != nrows or image_shape[1] != ncols:
                 images[i] = imresize( images[i], [nrows, ncols], interp = 'bilinear' )
+            images_index.append( i )
+            new_names.append( names[i] )
             new_images.append( images[i] )
+    images_index = np.array( images_index )
     new_images = np.array( new_images )
-    return new_images
+    return new_names, new_images, images_index
 
 
 def reduce_gt(grid, ground_truth):
