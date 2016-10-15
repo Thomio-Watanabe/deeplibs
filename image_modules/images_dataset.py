@@ -107,6 +107,8 @@ def load_all_images( images_dir ):
         mcols (list[int]): List with number of cols of each image.
     '''
     image_files = os.listdir( images_dir )
+    # Sort files in alphabetical order
+    image_files.sort()
     names = []
     rows = []
     cols = []
