@@ -19,26 +19,43 @@ class MnistDataset():
         self.train_size = 60000
         self.test_size = 10000
 
-    def load_images( self,
-                     images_dir, 
-                     train_file = 'train-images.idx3-ubyte',
-                     test_file = 't10k-images.idx3-ubyte' ):
-        path_to_train = os.path.join( images_dir, train_file )
-        path_to_test = os.path.join( images_dir, test_file )
-        print( '-- Loading mnist training images...' )
-        self.train_images = load_images_file( path_to_train , self.train_size, self.num_rows, self.num_cols )
-        print( '-- Loading mnist test images...' )
-        self.test_images = load_images_file( path_to_test, self.test_size, self.num_rows, self.num_cols )
+    def load_images( self, images_dir):
+        print( '-- Loading mnist images...' )
+        try:
+            train_file = 'train-images.idx3-ubyte'
+            path_to_train = os.path.join( images_dir, train_file )
+            self.train_images = load_images_file( path_to_train , self.train_size, self.num_rows, self.num_cols )
+        except FileNotFoundError:
+            train_file = 'train-images-idx3-ubyte'
+            path_to_train = os.path.join( images_dir, train_file )
+            self.train_images = load_images_file( path_to_train , self.train_size, self.num_rows, self.num_cols )
+        try:
+            test_file = 't10k-images.idx3-ubyte'
+            path_to_test = os.path.join( images_dir, test_file )
+            self.test_images = load_images_file( path_to_test, self.test_size, self.num_rows, self.num_cols )
+        except FileNotFoundError:
+            test_file = 't10k-images-idx3-ubyte'
+            path_to_test = os.path.join( images_dir, test_file )
+            self.test_images = load_images_file( path_to_test, self.test_size, self.num_rows, self.num_cols )
 
-    def load_labels( self,
-                     labels_dir,
-                     train_file = 'train-labels.idx1-ubyte',
-                     test_file = 't10k-labels.idx1-ubyte' ):
+    def load_labels( self, labels_dir ):
         print( '-- Loading mnist labels...' )
-        path_to_train = os.path.join( labels_dir, train_file )
-        path_to_test = os.path.join( labels_dir, test_file ) 
-        self.train_labels = load_labels_file( path_to_train )
-        self.test_labels = load_labels_file( path_to_test )
+        try:
+            train_file = 'train-labels.idx1-ubyte'
+            path_to_train = os.path.join( labels_dir, train_file )
+            self.train_labels = load_labels_file( path_to_train )
+        except FileNotFoundError:
+            train_file = 'train-labels-idx1-ubyte'
+            path_to_train = os.path.join( labels_dir, train_file )
+            self.train_labels = load_labels_file( path_to_train )
+        try:
+            test_file = 't10k-labels.idx1-ubyte'
+            path_to_test = os.path.join( labels_dir, test_file )
+            self.test_labels = load_labels_file( path_to_test )
+        except FileNotFoundError:
+            test_file = 't10k-labels-idx1-ubyte'
+            path_to_test = os.path.join( labels_dir, test_file )
+            self.test_labels = load_labels_file( path_to_test ).
 
     def format_dataset( self,
                         normalize = True,
