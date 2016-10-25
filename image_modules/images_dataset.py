@@ -12,14 +12,12 @@ class ImagesDataset:
 
     def load_images( self, training_dir, choose = False, resize = False ):
         self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
-
         if choose: # Analyse images and save those with more frequent nrows,ncols
             self.names, self.images, self.num_rows, self.num_cols, self.images_index = choose_images( self.names, self.images_list, self.rows_list, self.cols_list, self.num_channels)
         elif resize: # Load images and resize them with default nrows,ncols
             self.names, self.images, self.images_index = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
         else: # Load images with given num_rows, num_cols (defined in their child class constructor)
             self.names, self.images, self.images_index = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
-
         # Print general info about the loaded images
         images_info( self.images )
 
@@ -43,7 +41,6 @@ class ImagesDataset:
 
         return format_dataset( self.images, self.num_rows, self.num_cols, self.ground_truth )
         # gray_scale and normalize functions dont change the number of loaded images
-
 
 
 def rgb2gray( images_array ):
@@ -212,6 +209,7 @@ def resize_images( names, images, nrows, ncols, nchannels ):
     '''Resize and load images with nrows, ncols and nchannels.
 
     This function will try to resize the images to (nrows,ncols).
+    Images with shape != 3 and number of channels != nchannels will be discarded.
 
     Args:
         names (list[str]): List with all images names.
@@ -225,6 +223,7 @@ def resize_images( names, images, nrows, ncols, nchannels ):
         new_images (numpy array): Numpy array with nrows,ncols images
         images_index (numpy array): Numpy array with the selected images index from input images
     '''
+    print('-- Resizing images...')
     new_names = []
     new_images = []
     images_index = []
@@ -238,6 +237,8 @@ def resize_images( names, images, nrows, ncols, nchannels ):
             new_images.append( images[i] )
     images_index = np.array( images_index )
     new_images = np.array( new_images )
+
+    print('Total number of images resized:', len(new_images) )
     return new_names, new_images, images_index
 
 
