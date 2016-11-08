@@ -12,12 +12,14 @@ class ImagesDataset:
 
     def load_images( self, training_dir, choose = False, resize = False ):
         self.names, self.images_list, self.rows_list, self.cols_list = load_all_images( training_dir )
+
         if choose: # Analyse images and save those with more frequent nrows,ncols
             self.names, self.images, self.num_rows, self.num_cols, self.images_index = choose_images( self.names, self.images_list, self.rows_list, self.cols_list, self.num_channels)
         elif resize: # Load images and resize them with default nrows,ncols
             self.names, self.images, self.images_index = resize_images( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
         else: # Load images with given num_rows, num_cols (defined in their child class constructor)
             self.names, self.images, self.images_index = save_default( self.names, self.images_list, self.num_rows, self.num_cols, self.num_channels )
+
         # Print general info about the loaded images
         images_info( self.images )
 
@@ -70,7 +72,7 @@ def normalize_images( images_array, pixel_depth = 255.0 ):
         pixel_depth (Optional[float]: max values of pixel intensity. Default = 255.0.
 
     Returns:
-        normalized_images (numpy array): float32 numpy array.
+        normalized_images (numpy array): float32 numpy array [-1,1].
     '''
     print('-- Normalizing images...')
     print('Input images type:', images_array.dtype )
@@ -80,6 +82,28 @@ def normalize_images( images_array, pixel_depth = 255.0 ):
     for i in range( num_images ):
         normalized_images[i] =  ( images_array[i] - (pixel_depth) / 2.0 ) / pixel_depth
     return normalized_images
+
+
+def standardize_images( images_array ):
+    '''Function to standardize an array of images.
+
+    Args:
+        images_array (numpy array): numpy array with 3 elements (num_images, num_rows, num_cols).
+
+    Returns:
+        standardized_images (numpy array): float32 numpy array.
+    '''
+    print('-- Standardizing images...')
+    print('Input images type:', images_array.dtype )
+    print('Input images shape:', images_array.shape )
+    num_images, num_rows, num_cols, num_channels = images_array.shape
+    standardized_images = np.ndarray( shape = (num_images, num_rows, num_cols, num_channels), dtype = np.float32 )
+    for i in range( num_images ):
+        mean = np.mean( images_array[i] )
+        std_dev = np.std( images_array[i] )
+        # Prevent division by zero
+        standardized_images[i] = ( images_array[i] - mean )/max(std_dev,0.001)
+    return standardized_images
 
 
 def images_info( images ):
@@ -209,7 +233,6 @@ def resize_images( names, images, nrows, ncols, nchannels ):
     '''Resize and load images with nrows, ncols and nchannels.
 
     This function will try to resize the images to (nrows,ncols).
-    Images with shape != 3 and number of channels != nchannels will be discarded.
 
     Args:
         names (list[str]): List with all images names.
@@ -223,7 +246,6 @@ def resize_images( names, images, nrows, ncols, nchannels ):
         new_images (numpy array): Numpy array with nrows,ncols images
         images_index (numpy array): Numpy array with the selected images index from input images
     '''
-    print('-- Resizing images...')
     new_names = []
     new_images = []
     images_index = []
@@ -237,8 +259,6 @@ def resize_images( names, images, nrows, ncols, nchannels ):
             new_images.append( images[i] )
     images_index = np.array( images_index )
     new_images = np.array( new_images )
-
-    print('Total number of images resized:', len(new_images) )
     return new_names, new_images, images_index
 
 
