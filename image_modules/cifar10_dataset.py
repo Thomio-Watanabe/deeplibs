@@ -26,7 +26,7 @@ class Cifar10Dataset():
                      file_name_04 = 'data_batch_4',
                      file_name_05 = 'data_batch_5',
                      file_name_06 = 'test_batch' ):
-        '''load_images
+        '''Load images from batch files.
 
         Each unpickled batch file is a dictionary containing: dict_keys(['filenames', 'batch_label', 'labels', 'data'])
 
@@ -34,7 +34,15 @@ class Cifar10Dataset():
         Each row of the array stores a 32x32 colour image.
         The first 1024 entries contain the red channel values, the next 1024 the green, and the final 1024 the blue.
         The image is stored in row-major order, so that the first 32 entries of the array are the red channel values of the first row of the image.
+
+        Args:
+            images_dir (str): Directory with the training and test images files.
+            file_name_0X (str): File name with the training/testing images.
         '''
+        print('-------------')
+        print('-- Cifar10 --')
+        print('-------------')
+
         print('-- Loading images...')
         batch_file_01 = os.path.join( images_dir, file_name_01 )
         batch_file_02 = os.path.join( images_dir, file_name_02 )
@@ -68,6 +76,17 @@ class Cifar10Dataset():
                         num_epochs = 10,
                         eval_batch_size = 64,
                         eval_frequency = 100 ):
+        '''Format training and testing images.
+
+        Args:
+            grey_scale (bool): Flag to transform RGB images to grey scale.
+            normalize (bool): Flag to normalize images (highly recommended).
+            validation_size (int): Number of images in validation set.
+            batch_size (int): Number of images in training batch.
+            num_epochs (int): Number of times the training set is used.
+            eval_batch_size (int): Number of images in the evaluation batch.
+            eval_frequency (int): Number of steps required to evaluate the training.
+        '''
         print('-- Formating dataset...')
         self.train_images = np.concatenate( (self.images_01,
                                              self.images_02,
@@ -84,16 +103,15 @@ class Cifar10Dataset():
                                              axis = 0 )
         self.test_labels = self.labels_06
 
-
         if grey_scale:
             self.train_images = images_dataset.rgb2grey_array( self.train_images )
             self.test_images = images_dataset.rgb2grey_array( self.test_images )
             self.num_channels = 1
 
-        train_size = self.train_images.shape[0]
-        test_size = self.test_images.shape[0]
-        self.train_images = self.train_images.reshape( train_size, self.num_rows, self.num_cols, self.num_channels).astype(np.float32)
-        self.test_images = self.test_images.reshape( test_size, self.num_rows, self.num_cols, self.num_channels).astype(np.float32)
+        __train_size = self.train_images.shape[0]
+        __test_size = self.test_images.shape[0]
+        self.train_images = self.train_images.reshape( __train_size, self.num_rows, self.num_cols, self.num_channels).astype(np.float32)
+        self.test_images = self.test_images.reshape( __test_size, self.num_rows, self.num_cols, self.num_channels).astype(np.float32)
         if normalize:
             self.train_images = images_dataset.normalize_images( self.train_images )
             self.test_images = images_dataset.normalize_images( self.test_images )
@@ -113,6 +131,16 @@ class Cifar10Dataset():
 
 
 def unpickle(file_name):
+    '''Unpickle dataset files with latin1 encoding.
+
+    Each unpickled batch file is a dictionary containing: dict_keys(['filenames', 'batch_label', 'labels', 'data'])
+
+    Args:
+        file_name (str): Path to file to unpickle.
+
+    Returns:
+        unpickled_data (dict of str: *): Dictionary with strings as keys: ['filenames', 'batch_label', 'labels', 'data'].
+    '''
     file_handle = open(file_name, 'rb')
     try:    # python3
         unpickled_data = pickle.load(file_handle, encoding = 'latin1')
@@ -126,9 +154,21 @@ def extract_data( batch,
                   num_rows = 32,
                   num_cols = 32,
                   num_channels = 3):
-    '''
+    '''Extract images and labels from dictionary object.
+
     batch['data'] is a numpy array of 10000 imagels and 3072 pixels/image
     batch['labels'] is a list 10000 labels (from 0 to 9)
+
+    Args:
+        batch (dict of str: *): Dictionary with strings as keys.
+        num_images_batch (int): Number of images per batch.
+        num_rows (int): Number of rows in each image.
+        num_cols (int): number of cols in each image.
+        num_channels (int): Number of color channels in each image.
+
+    Returns:
+        reshaped_images (ndarray): Multidimensional numpy array of images.
+        labels (ndarray[int]): Numpy array of labels (integers).
     '''
     # reshape batch['data'] to 1000x3x1024 array
     pixels_channel = 32 * 32
